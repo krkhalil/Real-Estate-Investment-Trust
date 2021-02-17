@@ -2,11 +2,23 @@ df = read.csv('realestate_data.csv')
 df
 #summary of the data set 
 summary(df)
-
 #sum of the NA Values in the data set
 sum(is.na(df))
 #here we are seeing the names of the data set column names
 colnames(df)
+
+
+#seprate the categorical variables
+unique(df$view)
+df$view
+
+unique(df$grade)
+max(df$grade)
+
+unique(df$condition)
+df$condition
+
+
 
 
 #here is the loop that is checking ,replacing and removing the NA values from the Data Frame
@@ -19,27 +31,7 @@ for (i in which(sapply(df, is.numeric))) {
 #here is new data frame which  omitting the NA values here another technique the remove NA values from the data set 
 newdf = na.omit(df)
 
-#The next major preprocessing activity is to identify the outliers package and deal with it. We can identify the presence of outliers in R by making use of the outliers function. We can use the function outliers only on the numeric columns, hence let's consider the preceding dataset, where the NAs were replaced by the mean values, and we will identify the presence of an outlier using the outliers function. Then, we get the location of all the outliers using the which function and finally, we remove the rows that had outlier values
 
-install.packages("outliers")
-library(outliers)
-
-#We identify the outliers in the X2012 column, which can be subsetted using the data$X2012 command
-
-outlier_tf = outlier(newdf$grade,logical=TRUE)
-sum(outlier_tf)
-
-
-
-#What were the outliers
-find_outlier = which(outlier_tf==TRUE,arr.ind=TRUE)
-#Removing the outliers
-newdata = newdf[-find_outlier,]
-nrow(newdata)
-
-#finding the Standard Deaviation of Price Column 
-standard_deviation = sd(newdf$price)
-paste("Std Deviation of MPG:", standard_deviation)
 
 
 
@@ -144,5 +136,56 @@ Y=(6311960.373850)+(-39458.662313)*3+(46937.370742)*1.0+(46937.370742)*1180+(469
 Y
 
 cat(sprintf("\"%f\" \"%f\"\"%f\" \"%f\"\"%f\" \"%f\"\"%f\" \"%f\"\"%f\" \"%f\"\"%f\" \"%f\"\"%f\"\n",Xprice,Xbedrooms,Xbathrooms,Xsqft_living,Xsqft_lot,Xfloors,Xwaterfront,Xview,Xcondition,Xgrade,Xsqft_above,Xsqft_basement,Xyr_built,Xsqft_living15,Xsqft_lot15))
+
+
+
+
+
+
+#-------------Multiple Regression--------------
+
+#dividing data into train and test set 
+
+# 80% of the sample size
+smp_size <- floor(0.8 * nrow(df))
+
+## set the seed to make your partition reproducible
+set.seed(123)
+train <- sample(seq_len(nrow(df)), size = smp_size)
+
+training_data <- df[train_, ]
+testing_data <- df[-train_, ]
+
+relation_1 <- lm(price~sqft_living15,data=training_data)
+
+summary(relation_1)
+
+
+relation_2 <- lm(price~sqft_living,data=training_data)
+
+summary(relation_2)
+
+#residual standard error  is Standard deviation of residual 
+#Multiple R- squared is percentage of variance 
+
+relation <- lm(price~bedrooms+bathrooms+sqft_living+sqft_lot+floors+waterfront+view+condition+grade+sqft_above+yr_built+sqft_living15+sqft_lot15, data=training_data)
+
+summary(relation)
+
+print(relation)
+
+confint(relation)
+
+
+predictions = predict.lm(relation, testing_data)
+
+predictions
+
+RMS = mean(predictions-testing_data$readingScore)^2 #Root mean square 
+
+print('Residual Error (MSE): ')
+RMS
+
+plot(relation)
 
 
