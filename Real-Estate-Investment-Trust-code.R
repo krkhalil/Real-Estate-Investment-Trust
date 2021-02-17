@@ -2,22 +2,15 @@ df = read.csv('realestate_data.csv')
 df
 #summary of the data set 
 summary(df)
+
+#here is to check the data charcteristics
+str(df)
+sapply(df, class)
+
 #sum of the NA Values in the data set
 sum(is.na(df))
 #here we are seeing the names of the data set column names
 colnames(df)
-
-
-#seprate the categorical variables
-unique(df$view)
-df$view
-
-unique(df$grade)
-max(df$grade)
-
-unique(df$condition)
-df$condition
-
 
 
 
@@ -181,11 +174,82 @@ predictions = predict.lm(relation, testing_data)
 
 predictions
 
-RMS = mean(predictions-testing_data$readingScore)^2 #Root mean square 
+RMS = mean(predictions-testing_data$price)^2 #Root mean square 
 
 print('Residual Error (MSE): ')
 RMS
 
 plot(relation)
 
+
+#seprate the categorical variables
+unique(df$view)
+df$view
+unique(df$grade)
+max(df$grade)
+unique(df$condition)
+df$condition
+
+table(df$view)
+
+
+#----------------------Logistic Regression---------------------------
+# Table outcome
+table(df$condition)
+
+# Baseline accuracy
+98/131
+
+# Install and load caTools package
+install.packages("caTools")
+library(caTools)
+
+# Randomly split data
+set.seed(88)
+split = sample.split(df$price, SplitRatio = 0.75)
+split
+
+# Create training and testing sets
+qualityTrain = subset(df, split == TRUE)
+qualityTest = subset(df, split == FALSE)
+
+# Logistic Regression Model
+QualityLog = glm(df$condition~, data=qualityTrain)
+summary(QualityLog)
+
+# Make predictions on training set
+predictTrain = predict(QualityLog, type="response")
+
+predictTrain
+
+# Analyze predictions
+summary(predictTrain)
+tapply(predictTrain, qualityTrain$PoorCare, mean)
+
+
+# Confusion matrix for threshold of 0.5
+table(qualityTrain$PoorCare, predictTrain > 0.5)
+
+# Sensitivity and specificity
+10/25
+70/74
+
+# Confusion matrix for threshold of 0.7
+table(qualityTrain$PoorCare, predictTrain > 0.7)
+
+# Sensitivity and specificity
+8/25
+73/74
+
+# Confusion matrix for threshold of 0.2
+table(qualityTrain$PoorCare, predictTrain > 0.2)
+
+# Sensitivity and specificity
+16/25
+54/74
+
+
+install.packages("Amelia")
+library(Amelia)
+missmap(df, main = "Missing values vs observed")
 
