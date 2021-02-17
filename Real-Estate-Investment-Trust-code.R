@@ -194,62 +194,52 @@ table(df$view)
 
 
 #----------------------Logistic Regression---------------------------
-# Table outcome
-table(df$condition)
 
-# Baseline accuracy
-98/131
-
-# Install and load caTools package
-install.packages("caTools")
 library(caTools)
+#reading data file
+mydata = read.csv('binary.csv', header = T)
+
+
 
 # Randomly split data
 set.seed(88)
-split = sample.split(df$price, SplitRatio = 0.75)
+split = sample.split(mydata, SplitRatio = 0.80)
 split
 
 # Create training and testing sets
-qualityTrain = subset(df, split == TRUE)
-qualityTest = subset(df, split == FALSE)
+Train = subset(mydata, split == TRUE)
+Test = subset(mydata, split == FALSE)
+colnames(mydata)
+#caterogorcal data to factor conversion
+mydata$admit = as.factor(mydata$admit)
+mydata$rank = as.factor(mydata$rank)
 
 # Logistic Regression Model
-QualityLog = glm(df$condition~, data=qualityTrain)
-summary(QualityLog)
+#family denotes the logistics regression
+#glm is the regression model
+myModel = glm(admit ~ gpa+rank, data=Train , family = 'binomial')
+summary(myModel)
 
 # Make predictions on training set
-predictTrain = predict(QualityLog, type="response")
-
-predictTrain
-
+res = predict(myModel,Test, type="response")
+res
 # Analyze predictions
-summary(predictTrain)
-tapply(predictTrain, qualityTrain$PoorCare, mean)
+summary(res)
 
 
-# Confusion matrix for threshold of 0.5
-table(qualityTrain$PoorCare, predictTrain > 0.5)
-
-# Sensitivity and specificity
-10/25
-70/74
-
-# Confusion matrix for threshold of 0.7
-table(qualityTrain$PoorCare, predictTrain > 0.7)
-
-# Sensitivity and specificity
-8/25
-73/74
-
-# Confusion matrix for threshold of 0.2
-table(qualityTrain$PoorCare, predictTrain > 0.2)
-
-# Sensitivity and specificity
-16/25
-54/74
+#make testing on traing set
+res = predict(myModel,Train, type="response")
+res
+# Analyze predictions
+summary(res)
 
 
-install.packages("Amelia")
-library(Amelia)
-missmap(df, main = "Missing values vs observed")
+#validate the model using confussion matrix
+confMatrix = table(Actual_value = Train$admit, predicted_value = res > 0.5)
+confMatrix
+
+#Accurecy
+(confMatrix[[1,1]]+confMatrix[[2,2]]/sum(confMatrix))
+
+
 
