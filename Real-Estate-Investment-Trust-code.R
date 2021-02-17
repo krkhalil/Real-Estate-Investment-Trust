@@ -1,3 +1,4 @@
+
 df = read.csv('realestate_data.csv')
 df
 #summary of the data set 
@@ -24,6 +25,16 @@ for (i in which(sapply(df, is.numeric))) {
 #here is new data frame which  omitting the NA values here another technique the remove NA values from the data set 
 newdf = na.omit(df)
 
+
+
+# plot histogram
+hist(df$price,
+               geom_histogram_args = list(bins = 35L),
+               title = "Histogram",
+               ggtheme = theme_minimal(),
+               nrow = 3L,
+               ncol = 3L
+)
 
 
 
@@ -239,7 +250,7 @@ confMatrix = table(Actual_value = Train$admit, predicted_value = res > 0.5)
 confMatrix
 
 #Accurecy
-(confMatrix[[1,1]]+confMatrix[[2,2]]/sum(confMatrix))
-
+aa = (confMatrix[[1,1]]+confMatrix[[2,2]]/sum(confMatrix))
+aa
 
 
